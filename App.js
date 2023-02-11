@@ -12,6 +12,7 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import AddButton from "./components/AddButton";
 import Header from "./components/Header";
@@ -41,6 +42,7 @@ export default function App() {
 
   // is modal visible or not for add new item
   const [modalVisible, setModalVisible] = useState(false);
+  const [refresh, setRefresh] = useState(false);
   // new item string
   const [newName, setnewName] = useState("");
   const [newImage, setNewImage] = useState("");
@@ -113,8 +115,9 @@ export default function App() {
       if (Platform.OS === "android") {
         ToastAndroid.show(`${newName} added`, ToastAndroid.SHORT);
       }
-      getShoppingList();
       setModalVisible(false);
+      getShoppingList();
+      
       setnewName("");
 
       setNewImage("");
@@ -125,45 +128,15 @@ export default function App() {
     }
   };
 
-  const updateShoppingItem = async () => {
-    try {
-      const shoppingCol = query(
-        collection(db, "Shopping"),
-        where("title", "==", newName)
-      );
-      const shoppingSnapshot = await getDocs(shoppingCol);
-      console.log(shoppingSnapshot.uniqueId)
-      // const special = doc(db, "Shopping/yqSH2HRITm21eTYWhkqP");
-      // const docData = {
-      //   title: newName,
-      //   image: newImage,
-      //   price: newPrice,
-      //   offerPrice: newOfferPrice,
-      //   isChecked: false,
-      //   uniqueId: uniqueId,
-      // };
-      // // updateDoc(special,docData)
-      // setDoc(special, docData, { merge: true });
-
-      if (Platform.OS === "android") {
-        ToastAndroid.show(`${newName} updated`, ToastAndroid.SHORT);
-      }
-      // setnewName("");
-
-      setNewImage("");
-      setNewPrice("");
-      setNewOfferPrice("");
-    } catch (e) {
-      console.error("Error updating the document");
-    }
-  };
-
   // open new item modal
   const openModal = () => {
     setModalVisible(true);
   };
 
-
+  const _handleRefresh = () => {
+    setRefresh(true);
+    getShoppingList().then(setRefresh(false));
+  };
   useEffect(() => {
     generateId();
     getShoppingList();
@@ -189,6 +162,9 @@ export default function App() {
         {/* list of items */}
         <FlatList
           data={shoppingList}
+          refreshControl={
+            <RefreshControl refreshing={refresh} onRefresh={_handleRefresh} />
+          }
           renderItem={({ item }) => (
             <ShoppingItem
               id={item.id}
