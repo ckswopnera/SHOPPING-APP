@@ -16,8 +16,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { db, doc, deleteDoc, updateDoc } from "../firebase/index";
 import { EvilIcons, Entypo } from "@expo/vector-icons";
 import { setDoc } from "firebase/firestore";
+import { decrement } from "../src/features/counter/counterSlice";
+import {useSelector, useDispatch } from "react-redux";
 
 const ShoppingItem = (props) => {
+  const count = useSelector((state) => state.counter.value)
+  const dispatch = useDispatch()
   const [isChecked, setIsChecked] = useState(props.isChecked);
   const [shoppingList, setShoppingList] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -35,7 +39,8 @@ const ShoppingItem = (props) => {
         ToastAndroid.show(`${props.title} removed`, ToastAndroid.SHORT);
       }
       props.onRefresh();
-    });
+      dispatch(decrement())
+    })
   };
   const openModalUpdate = () => {
     setUpdateModalVisible(true);

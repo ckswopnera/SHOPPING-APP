@@ -33,8 +33,11 @@ import { LogBox } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UpdateButton from "./components/UpdateButton";
 import { setDoc } from "firebase/firestore";
-
+import { useSelector, useDispatch } from "react-redux";
+import { decrementAll, increment } from "./src/features/counter/counterSlice";
 export default function App() {
+  const count = useSelector((state) => state.counter.value);
+  const dispatch = useDispatch();
   // store entire list
   const [shoppingList, setShoppingList] = useState([]);
   // total items in the list
@@ -97,8 +100,11 @@ export default function App() {
     if (Platform.OS === "android") {
       ToastAndroid.show("All Items Deleted", ToastAndroid.SHORT);
     }
-
-    getShoppingList();
+setTimeout(() => {
+  getShoppingList();
+}, 500);
+   
+    dispatch(decrementAll());
   };
 
   // add new item
@@ -117,7 +123,7 @@ export default function App() {
       }
       setModalVisible(false);
       getShoppingList();
-      
+      dispatch(increment());
       setnewName("");
 
       setNewImage("");
@@ -182,6 +188,7 @@ export default function App() {
           ListFooterComponent={<View style={{ height: 20 }}></View>}
         />
       </View>
+
       {/* modal for new item */}
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View
@@ -326,7 +333,6 @@ export default function App() {
           </View>
         </View>
       </Modal>
-
       {/* button to open the modal */}
       <View style={styles.buttonContainer}>
         <AddButton onPress={openModal} />
